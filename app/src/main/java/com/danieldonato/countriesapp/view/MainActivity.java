@@ -1,8 +1,10 @@
-package com.danieldonato.countriesapp;
+package com.danieldonato.countriesapp.view;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.danieldonato.countriesapp.R;
 
 public class MainActivity extends AppCompatActivity {
 
