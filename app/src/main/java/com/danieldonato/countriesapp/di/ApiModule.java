@@ -1,6 +1,7 @@
 package com.danieldonato.countriesapp.di;
 
 import com.danieldonato.countriesapp.model.CountriesApi;
+import com.danieldonato.countriesapp.model.CountriesService;
 
 import dagger.Module;
 import dagger.Provides;
@@ -23,4 +24,8 @@ public class ApiModule {
             .create(CountriesApi.class);
     }
 
+    @Provides
+    public CountriesService provideCountriesService() {
+        return CountriesService.getInstance();
+    }
 }
