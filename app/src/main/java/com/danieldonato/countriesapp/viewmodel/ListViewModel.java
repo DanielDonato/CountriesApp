@@ -3,10 +3,17 @@ package com.danieldonato.countriesapp.viewmodel;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.danieldonato.countriesapp.model.CountriesService;
 import com.danieldonato.countriesapp.model.CountryModel;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.observers.DisposableSingleObserver;
+import io.reactivex.schedulers.Schedulers;
 
 public class ListViewModel extends ViewModel {
 
@@ -14,22 +21,41 @@ public class ListViewModel extends ViewModel {
     public MutableLiveData<Boolean> countryLoadError = new MutableLiveData<>();
     public MutableLiveData<Boolean> loading = new MutableLiveData<>();
 
+    private CountriesService countriesService = CountriesService.getInstance();
+
+    private CompositeDisposable disposable = new CompositeDisposable();
+
     public void refresh() {
         fetchCountries();
     }
 
     public void fetchCountries() {
-        CountryModel country1 = new CountryModel("Albania", "Tirana", "");
-        CountryModel country2 = new CountryModel("Brazil", "Brazilia", "");
-        CountryModel country3 = new CountryModel("Czechia", "Praha", "");
+        loading.setValue(true);
+        disposable.add(
+                countriesService.getCountries()
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableSingleObserver<List<CountryModel>>() {
+                    @Override
+                    public void onSuccess(List<CountryModel> countryModels) {
+                        countries.setValue(countryModels);
+                        countryLoadError.setValue(false);
+                        loading.setValue(false);
+                    }
 
-        List<CountryModel> list = new ArrayList<>();
-        list.add(country1);
-        list.add(country2);
-        list.add(country3);
+                    @Override
+                    public void onError(Throwable e) {
+                        countryLoadError.setValue(true);
+                        loading.setValue(false);
+                        e.printStackTrace();
+                    }
+                })
+        );
+    }
 
-        countries.setValue(list);
-        countryLoadError.setValue(false);
-        loading.setValue(false);
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        disposable.clear();
     }
 }
