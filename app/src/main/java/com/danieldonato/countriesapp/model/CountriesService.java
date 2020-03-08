@@ -1,29 +1,24 @@
 package com.danieldonato.countriesapp.model;
 
+import com.danieldonato.countriesapp.di.DaggerApiComponent;
 import com.danieldonato.countriesapp.viewmodel.ListViewModel;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import io.reactivex.Single;
-import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class CountriesService {
 
-    private static final String BASE_URL = "https://raw.githubusercontent.com/";
 
     private static CountriesService instance;
 
-    private CountriesApi api = new Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .build()
-            .create(CountriesApi.class);
+    @Inject
+    public CountriesApi api;
 
     private CountriesService() {
-
+        DaggerApiComponent.create().inject(this);
     }
 
     public static CountriesService getInstance() {
